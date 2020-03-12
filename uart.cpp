@@ -116,7 +116,7 @@ void Uart :: sendUart(unsigned char *msg){
   p_tx_buffer = &tx_buffer[0];
 
   // so that i have the number of bytes to write
-  // by doing p_tx - tx 
+  // by doing p_tx - tx
   for (int i = 0; i < 20; i++) {
     *p_tx_buffer++ = msg[i];
   }
@@ -180,13 +180,16 @@ void Uart :: readUart(){
 
     if (rx_length>=0)
     {
-      if (nread<=NSERIAL_CHAR)   serial_message[nread-1] = rx_buffer[0];   // Build message 1 character at a time
+      if (nread<=NSERIAL_CHAR){
+        serial_message[nread-1] = rx_buffer[0];   // Build message 1 character at a time
+        printf("%x ",serial_message[nread-1]);
+      }
 
       if (rx_buffer[0]=='#')   pickup=false;                               // # symbol is terminator
     }
   }
 
-  printf("\nMessage Received: %s", serial_message);
+  printf("\nMessage Received:");
 
 }
 
@@ -199,6 +202,7 @@ void Uart :: closeUart(){
 
 int main(int argc, char *argv[]) {
   Uart u;
+  int i;
   unsigned char m[256];
   m[0]= (unsigned char) 1;
   m[1]= (unsigned char) 0;
@@ -211,6 +215,12 @@ int main(int argc, char *argv[]) {
     u.sendUart(m);
     printf("sent\n");
     usleep(10000);
+    u.readUart();
+    while (u.serial_message[i]!='#') {
+      printf("%x ",u.serial_message[i]);
+      i++;
+    }
+    printf("\n");
   }
   return 0;
 }
