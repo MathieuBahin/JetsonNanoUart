@@ -115,10 +115,12 @@ void Uart :: sendUart(unsigned char *msg){
 
   p_tx_buffer = &tx_buffer[0];
 
+  // so that i have the number of bytes to write
+  // by doing p_tx - tx 
   for (int i = 0; i < 20; i++) {
-    p_tx_buffer[i] = msg[i];
+    *p_tx_buffer++ = msg[i];
   }
-
+  //printf("%x%x%x%x%x\n",p_tx_buffer[0],p_tx_buffer[1],p_tx_buffer[2],p_tx_buffer[3],p_tx_buffer[4]);
   printf("fid 1=%d\n", fid );
 
   if (fid != -1)
@@ -193,4 +195,22 @@ void Uart :: closeUart(){
   //  CLOSE THE SERIAL PORT
   //-------------------------------------------
   close(fid);
+}
+
+int main(int argc, char *argv[]) {
+  Uart u;
+  unsigned char m[256];
+  m[0]= (unsigned char) 1;
+  m[1]= (unsigned char) 0;
+  m[2]= (unsigned char) 0;
+  m[3]= (unsigned char) 0;
+  m[4]= (unsigned char) 1;
+  m[5]= (unsigned char) '#';
+  m[6]= (unsigned char) '\0';
+  while (1) {
+    u.sendUart(m);
+    printf("sent\n");
+    usleep(10000);
+  }
+  return 0;
 }
