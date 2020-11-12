@@ -27,6 +27,7 @@ public:
 
   Uart ();
   void sendUart(unsigned char *msg);
+  bool sendUart_fb(unsigned char *msg);
   void readUart();
   void closeUart();
 
