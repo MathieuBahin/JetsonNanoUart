@@ -48,7 +48,7 @@ Uart :: Uart (){
 
   if (fid == -1)
   {
-    printf("Error - Unable to open UART.  Ensure it is not in use by another application\n");
+    printf("**Error - Unable to open UART**.  \n=>Ensure it is not in use by another application\n=>Ensure proper privilages are granted to accsess /dev/.. by run as a sudo\n");
   }
 
   //------------------------------------------------
@@ -139,6 +139,48 @@ void Uart :: sendUart(unsigned char *msg){
 
 }
 
+bool  Uart :: sendUart_fb(unsigned char *msg){
+  //--------------------------------------------------------------
+  // TRANSMITTING BYTES WITH LOGICAL FEED BACK
+  //--------------------------------------------------------------
+  unsigned char tx_buffer[20];
+  unsigned char *p_tx_buffer;
+
+  p_tx_buffer = &tx_buffer[0];
+
+  // so that i have the number of bytes to write
+  // by doing p_tx - tx
+  for (int i = 0; i < 20; i++) {
+    *p_tx_buffer++ = msg[i];
+  }
+  //printf("%x%x%x%x%x\n",p_tx_buffer[0],p_tx_buffer[1],p_tx_buffer[2],p_tx_buffer[3],p_tx_buffer[4]);
+  printf("fid 1=%d\n", fid );
+  
+
+  if (fid != -1)
+  {
+    int count = write(fid, &tx_buffer[0], (p_tx_buffer - &tx_buffer[0]));		//Filestream, bytes to write, number of bytes to write
+
+    usleep(1000);   // .001 sec delay
+
+    printf("Count = %d\n", count);
+
+    if (count < 0)  
+    {
+	    printf("UART TX error\n");
+	    return false;
+    }
+    return true;
+  }
+  else
+  {
+	  return false;
+  }
+
+  usleep(1000000);  // 1 sec delay
+
+
+}
 void Uart :: readUart(){
 
   //--------------------------------------------------------------
@@ -214,6 +256,18 @@ int main(int argc, char *argv[]) {
   while (1) {
     u.sendUart(m);
     printf("sent\n");
+
+    //feed back function test
+    if(u.sendUart_fb(m))
+    {
+	    printf("data send with feed back\n");
+    }
+    else
+    {
+	    printf("data failed to send with feedback\n");
+    }
+    // end of feed back function test
+   
     usleep(10000);
     u.readUart();
     while (u.serial_message[i]!='#') {
